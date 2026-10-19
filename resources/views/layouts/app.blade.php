@@ -29,8 +29,25 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             @auth
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fas fa-user-circle"></i> {{ auth()->user()->name }}
+                        <span class="badge badge-light">{{ auth()->user()->roleName() }}</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <span class="dropdown-item-text text-muted small">{{ auth()->user()->email }}</span>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            @else
                 <li class="nav-item">
-                    <span class="nav-link">{{ auth()->user()->name }}</span>
+                    <a href="{{ route('login') }}" class="nav-link"><i class="fas fa-sign-in-alt"></i> Masuk</a>
                 </li>
             @endauth
         </ul>
@@ -47,13 +64,47 @@
         <div class="sidebar">
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    <!-- Menu akan difilter menurut permission (next phase) -->
+                    {{-- Dashboard --}}
                     <li class="nav-item {{ Request::routeIs('home') ? 'active' : '' }}">
                         <a href="{{ route('home') }}" class="nav-link">
                             <i class="nav-icon fas fa-tachometer-alt"></i>
                             <p>Dashboard</p>
                         </a>
                     </li>
+
+                    @auth
+                    {{-- Pengaturan (super_admin) --}}
+                    @if(auth()->user()->hasPermission('user.manage') || auth()->user()->hasPermission('role.manage') || auth()->user()->hasPermission('audit.view'))
+                    <li class="nav-header">PENGATURAN</li>
+
+                    @if(auth()->user()->hasPermission('user.manage'))
+                    <li class="nav-item {{ Request::routeIs('users.*') ? 'active' : '' }}">
+                        <a href="{{ route('users.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Pengguna</p>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('role.manage'))
+                    <li class="nav-item {{ Request::routeIs('roles.*') ? 'active' : '' }}">
+                        <a href="{{ route('roles.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-user-tag"></i>
+                            <p>Role &amp; Permission</p>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('audit.view'))
+                    <li class="nav-item {{ Request::routeIs('audit-logs.*') ? 'active' : '' }}">
+                        <a href="{{ route('audit-logs.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Audit Log</p>
+                        </a>
+                    </li>
+                    @endif
+                    @endif
+                    @endauth
                 </ul>
             </nav>
         </div>

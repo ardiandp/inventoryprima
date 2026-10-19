@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->seedDepartments();
         $this->seedRoles();
         $this->seedPermissions();
+        $this->seedRolePermissions();
         $this->seedUnits();
         $this->seedItemCategories();
         $this->seedWarehouses();
@@ -113,6 +114,66 @@ class DatabaseSeeder extends Seeder
                 'name' => $name,
                 'module' => $module,
             ]);
+        }
+    }
+
+    protected function seedRolePermissions(): void
+    {
+        // Mapping permission berdasarkan role (PRD bagian 3)
+        $mapping = [
+            'super_admin' => ['*'], // semua permission
+            'warehouse' => [
+                'master.view', 'rpo.view', 'rpo.create', 'rpo.edit',
+                'receiving.view', 'receiving.create', 'receiving.post',
+                'inventory.view', 'inventory.adjust',
+                'report.view',
+            ],
+            'production' => [
+                'master.view', 'rpo.view', 'rpo.create', 'rpo.edit',
+                'inventory.view', 'report.view',
+            ],
+            'purchasing' => [
+                'master.view', 'master.create', 'master.edit',
+                'rpo.view', 'rpo.verify',
+                'po.view', 'po.create', 'po.edit',
+                'receiving.view',
+                'inventory.view',
+                'report.view',
+            ],
+            'director' => [
+                'master.view', 'rpo.view', 'po.view', 'po.approve',
+                'receiving.view', 'qc.view',
+                'inventory.view', 'finance.view',
+                'report.view',
+            ],
+            'finance' => [
+                'master.view', 'po.view',
+                'finance.view', 'finance.create', 'finance.edit',
+                'inventory.view', // hanya lihat, TIDAK dapat inventory.adjust
+                'report.view',
+            ],
+            'qc' => [
+                'master.view', 'rpo.view', 'po.view',
+                'receiving.view',
+                'qc.view', 'qc.inspect',
+                'inventory.view',
+                'report.view',
+            ],
+        ];
+
+        foreach ($mapping as $roleName, $permissionNames) {
+            $role = Role::where('name', $roleName)->first();
+            if (! $role) {
+                continue;
+            }
+
+            if ($permissionNames === ['*']) {
+                $allPermissions = Permission::pluck('id');
+                $role->permissions()->sync($allPermissions);
+            } else {
+                $permIds = Permission::whereIn('name', $permissionNames)->pluck('id');
+                $role->permissions()->sync($permIds);
+            }
         }
     }
 
