@@ -3,9 +3,13 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WarehouseLocationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,6 +97,70 @@ Route::middleware('auth')->group(function () {
         });
         Route::middleware('permission:master.delete')->group(function () {
             Route::delete('/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
+        });
+
+        // Supplier
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
+            Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+            Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+        });
+
+        // Gudang
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/warehouses', [WarehouseController::class, 'index'])->name('warehouses.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create');
+            Route::post('/warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/warehouses/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit');
+            Route::put('/warehouses/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+        });
+
+        // Lokasi gudang
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/locations', [WarehouseLocationController::class, 'index'])->name('locations.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/locations/create', [WarehouseLocationController::class, 'create'])->name('locations.create');
+            Route::post('/locations', [WarehouseLocationController::class, 'store'])->name('locations.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/locations/{location}/edit', [WarehouseLocationController::class, 'edit'])->name('locations.edit');
+            Route::put('/locations/{location}', [WarehouseLocationController::class, 'update'])->name('locations.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/locations/{location}', [WarehouseLocationController::class, 'destroy'])->name('locations.destroy');
+        });
+
+        // Proyek (opsional)
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+            Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+            Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
         });
     });
 });
