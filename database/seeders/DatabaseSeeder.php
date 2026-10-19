@@ -2,7 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Department;
+use App\Models\Item;
+use App\Models\ItemCategory;
+use App\Models\Permission;
+use App\Models\Project;
+use App\Models\Role;
+use App\Models\Supplier;
+use App\Models\Unit;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +24,249 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->seedDepartments();
+        $this->seedRoles();
+        $this->seedPermissions();
+        $this->seedUnits();
+        $this->seedItemCategories();
+        $this->seedWarehouses();
+        $this->seedSuppliers();
+        $this->seedProjects();
+        $this->seedAdminUser();
+        $this->seedSampleItems();
+    }
+    protected function seedDepartments(): void
+    {
+        $names = [
+            'Gudang' => 'Departemen gudang dan inventori',
+            'Purchasing' => 'Departemen pembelian dan sourcing',
+            'Produksi' => 'Departemen produksi dan proyek',
+            'Finance' => 'Departemen keuangan dan pembayaran',
+            'QC' => 'Departemen inspeksi kualitas',
+            'Direktorat' => 'Departeman direksi dan approval',
+            'IT / Admin' => 'Departemen sistem dan administrasi',
+        ];
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        foreach ($names as $name => $description) {
+            Department::factory()->create([
+                'name' => $name,
+                'description' => $description,
+            ]);
+        }
+    }
+
+    protected function seedRoles(): void
+    {
+        $roles = [
+            'super_admin' => 'Konfigurasi dan akun sistem',
+            'warehouse' => 'RPO stok, penerimaan fisik, stok, transfer, pengeluaran, stock opname',
+            'production' => 'RPO material proyek, lihat status, konfirmasi pemakaian/pengembalian',
+            'purchasing' => 'Verifikasi RPO, sourcing, quotation, PO, koordinasi supplier dan retur',
+            'director' => 'Approve/reject semua pengadaan, laporan manajemen',
+            'finance' => 'Tagihan, jatuh tempo, pembayaran; tidak dapat mengubah saldo stok',
+            'qc' => 'Inspeksi kualitas, bukti pemeriksaan, status accepted/rejected',
+        ];
+
+        foreach ($roles as $name => $description) {
+            Role::factory()->create([
+                'name' => $name,
+                'description' => $description,
+            ]);
+        }
+    }
+
+    protected function seedPermissions(): void
+    {
+        $permissions = [
+            'master.view' => 'master',
+            'master.create' => 'master',
+            'master.edit' => 'master',
+            'master.delete' => 'master',
+            'rpo.view' => 'rpo',
+            'rpo.create' => 'rpo',
+            'rpo.edit' => 'rpo',
+            'rpo.delete' => 'rpo',
+            'rpo.verify' => 'rpo',
+            'po.view' => 'po',
+            'po.create' => 'po',
+            'po.edit' => 'po',
+            'po.delete' => 'po',
+            'po.approve' => 'po',
+            'receiving.view' => 'receiving',
+            'receiving.create' => 'receiving',
+            'receiving.post' => 'receiving',
+            'qc.view' => 'qc',
+            'qc.inspect' => 'qc',
+            'inventory.view' => 'inventory',
+            'inventory.adjust' => 'inventory',
+            'finance.view' => 'finance',
+            'finance.create' => 'finance',
+            'finance.edit' => 'finance',
+            'report.view' => 'report',
+            'user.manage' => 'system',
+            'role.manage' => 'system',
+            'audit.view' => 'system',
+        ];
+
+        foreach ($permissions as $name => $module) {
+            Permission::factory()->create([
+                'name' => $name,
+                'module' => $module,
+            ]);
+        }
+    }
+
+
+
+
+    protected function seedUnits(): void
+    {
+        $units = [
+            ['PCS', 'Pcs', 'pcs'],
+            ['BOX', 'Box', 'box'],
+            ['KG', 'Kg', 'kg'],
+            ['LTR', 'Liter', 'L'],
+            ['MTR', 'Meter', 'm'],
+            ['SET', 'Set', 'set'],
+        ];
+
+        foreach ($units as [$code, $name, $symbol]) {
+            Unit::factory()->create([
+                'code' => $code,
+                'name' => $name,
+                'symbol' => $symbol,
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    protected function seedItemCategories(): void
+    {
+        $categories = [
+            'Bahan Baku',
+            'Barang Jadi',
+            'Peralatan',
+            'Consumable',
+            'Sparepart',
+            'Packaging',
+            'MRO',
+        ];
+
+        foreach ($categories as $name) {
+            ItemCategory::factory()->create([
+                'name' => $name,
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    protected function seedWarehouses(): void
+    {
+        $warehouses = [
+            'Gudang Pusat',
+            'Gudang Cabang A',
+            'Gudang Produksi',
+            'Gudang Karantina',
+        ];
+
+        foreach ($warehouses as $name) {
+            Warehouse::factory()->create([
+                'name' => $name,
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    protected function seedSuppliers(): void
+    {
+        Supplier::factory()->create([
+            'name' => 'PT Supplier Jaya',
+            'contact_person' => 'Budi Santoso',
+            'email' => 'budi@supplierjaya.co.id',
+            'phone' => '021-12345678',
+            'address' => 'Jakarta, Indonesia',
+            'tax_id' => '01.234.567.8-901.234',
+            'is_active' => true,
+        ]);
+        Supplier::factory()->create([
+            'name' => 'CV Toko Abadi',
+            'contact_person' => 'Siti Rahayu',
+            'email' => 'siti@tokoabadi.co.id',
+            'phone' => '021-87654321',
+            'address' => 'Bogor, Indonesia',
+            'tax_id' => '02.345.678.9-012.345',
+            'is_active' => true,
         ]);
     }
+
+    protected function seedProjects(): void
+    {
+        Project::factory()->create([
+            'name' => 'Proyek Pabrik Baru',
+            'description' => 'Proyek pembangunan pabrik produksi baru',
+            'is_active' => true,
+        ]);
+        Project::factory()->create([
+            'name' => 'Proyek Expansi Gudang',
+            'description' => 'Proyek ekspansi kapasitas gudang',
+            'is_active' => true,
+        ]);
+    }
+
+    protected function seedAdminUser(): void
+    {
+        $adminDept = Department::where('name', 'Direktorat')->first();
+        $adminUser = User::factory()->create([
+            'name' => 'Administrator',
+            'email' => 'admin@primainventory.co.id',
+            'password' => bcrypt('password'),
+            'department_id' => $adminDept ? $adminDept->id : null,
+        ]);
+        $superAdminRole = Role::where('name', 'super_admin')->first();
+        if ($superAdminRole) {
+            $adminUser->roles()->attach($superAdminRole->id);
+        }
+    }
+
+    protected function seedSampleItems(): void
+    {
+        $categoryIds = ItemCategory::pluck('id', 'code')->toArray();
+        $pcsUnit = Unit::where('code', 'PCS')->first();
+        $kgUnit = Unit::where('code', 'KG')->first();
+
+        if (!empty($categoryIds)) {
+            Item::factory()->create([
+                'code' => 'BRG00001',
+                'name' => 'Bearing 6205',
+                'category_id' => $categoryIds['CAT005'] ?? null,
+                'default_unit_id' => $pcsUnit ? $pcsUnit->id : null,
+                'min_stock' => 10,
+                'max_stock' => 100,
+                'requires_qc' => true,
+                'is_active' => true,
+            ]);
+            Item::factory()->create([
+                'code' => 'BRG00002',
+                'name' => 'Bolt M10x50',
+                'category_id' => $categoryIds['CAT005'] ?? null,
+                'default_unit_id' => $pcsUnit ? $pcsUnit->id : null,
+                'min_stock' => 50,
+                'max_stock' => 500,
+                'requires_qc' => false,
+                'is_active' => true,
+            ]);
+            Item::factory()->create([
+                'code' => 'BRG00003',
+                'name' => 'Lem Inggris',
+                'category_id' => $categoryIds['CAT004'] ?? null,
+                'default_unit_id' => $kgUnit ? $kgUnit->id : null,
+                'min_stock' => 5,
+                'max_stock' => 50,
+                'requires_qc' => false,
+                'is_active' => true,
+            ]);
+        }
+    }
 }
+
+
