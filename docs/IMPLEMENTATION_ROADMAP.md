@@ -23,8 +23,9 @@ Berdasarkan PRD bagian 11 (Fase Pengembangan dan Acceptance Criteria).
 
 ## Status
 
-- **Fase saat ini:** PHASE 0 — Discovery & Setup (sedang berlangsung)
-- **Fase selanjutnya:** PHASE 1 — ERD, Data Dictionary, Database Foundation
+- **PHASE 0 — Discovery & Setup:** ✅ SELESAI
+- **PHASE 1 — ERD, Data Dictionary, Database Foundation:** ✅ SELESAI
+- **Fase selanjutnya:** PHASE 2 — Auth, RBAC, Audit
 
 ## Aturan
 

@@ -116,4 +116,4 @@ feat(fase-0): setup environment MySQL dan dokumentasi awal
 
 ## 11. Fase Pengembangan (PRD bagian 11)
 
-PHASE 0 → PHASE 1 → PHASE 2 → … → PHASE 13. Lihat PRD untuk acceptance criteria masing-masing. Fase saat ini: lihat `docs/IMPLEMENTATION_ROADMAP.md`.
+PHASE 0 → PHASE 1 → PHASE 2 → … → PHASE 13. Lihat PRD untuk acceptance criteria masing-masing. Fase saat ini: PHASE 1 (selesai), berikutnya PHASE 2 — Auth, RBAC, Audit.
