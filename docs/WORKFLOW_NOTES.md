@@ -4,7 +4,7 @@ Tujuan: developer lain dapat melanjutkan pengembangan dari catatan ini tanpa mul
 
 ## Status Saat Ini (PHASE 1 Selesai)
 
-- **Branch:** `master` (commit terakhir: `672c6d1` — feat(fase-1): database foundation - migration, model, factory, seeder)
+- **Branch:** `master` (commit terakhir: `afc1007` — fix(fase-1): perbaiki seeder items dan lengkapi tests DatabaseFoundation)
 - **Fase saat ini:** PHASE 1 — ERD, Data Dictionary, Database Foundation ✅ (selesai)
 - **Fase berikutnya:** PHASE 2 — Auth, RBAC, Audit
 
@@ -24,6 +24,23 @@ Tujuan: developer lain dapat melanjutkan pengembangan dari catatan ini tanpa mul
 | Test | `tests/Feature/SmokeTest.php`, `ExampleTest.php` | 5 test, 5 lulus, 9 assertion |
 | Database | MySQL `primainventory` | Migration default Laravel (users, cache, jobs) berhasil |
 
+## Apa yang Sudah Dibangun (PHASE 1 — Database Foundation)
+
+| Item | File / Lokasi | Keterangan |
+|------|---------------|------------|
+| **Dokumentasi** | | |
+| ERD Mermaid | `docs/database/ERD.md` | Diagram ERD 16 tabel + catatan desain |
+| Data Dictionary | `docs/database/DATA_DICTIONARY.md` | Detail kolom lengkap semua tabel PHASE 1 |
+| **Migrations (17 file)** | | |
+| Identitas & RBAC | `2026_10_19_090000-090007` | departments, roles, permissions, role_user, permission_role, audit_logs, notifications, attachments |
+| Master Data | `2026_10_19_090008-090015` | item_categories, units, items, item_unit_conversions, warehouses, warehouse_locations, suppliers, projects |
+| Alter Users | `2026_10_19_090016` | add department_id ke tabel users |
+| **Models (13 file)** | `app/Models/` | Department, Role, Permission, ItemCategory, Unit, Item, ItemUnitConversion, Warehouse, WarehouseLocation, Supplier, Project, AuditLog, Attachment |
+| **User Model Update** | `app/Models/User.php` | Tambah relasi department, roles, method hasRole |
+| **Factories (9 file)** | `database/Factories/` | Department, Role, Permission, ItemCategory, Unit, Item, Warehouse, Supplier, Project |
+| **Seeder** | `database/seeders/DatabaseSeeder.php` | 7 dept, 7 role, 28 permission, 6 unit, 7 kategori, 4 gudang, 2 supplier, 2 proyek, 1 admin, 3 item |
+| **Tests** | `tests/Feature/DatabaseFoundationTest.php` | 12 tests, 73 assertions, semua passing |
+
 ## Cara Menjalankan Aplikasi (Lokal)
 
 ```powershell
@@ -37,13 +54,14 @@ copy .env.example .env
 # 3. Generate key
 php artisan key:generate
 
-# 4. Buat database di MySQL (nama: primainventory), lalu jalankan migration
-php artisan migrate
+# 4. Buat database di MySQL (nama: primainventory), lalu jalankan migration + seeder
+php artisan migrate --seed
 
 # 5. Jalankan server
 php artisan serve
 
 # 6. Buka http://localhost:8000/home
+# Login: admin@primainventory.co.id / password
 ```
 
 ## Cara Menjalankan Test
@@ -54,7 +72,7 @@ vendor\bin\phpunit
 php artisan test
 ```
 
-Hasil PHASE 0: 5 test, 5 lulus.
+**Hasil PHASE 1:** 17 tests (5 SmokeTest + 12 DatabaseFoundationTest), semua lulus, 82 assertions.
 
 ## Contoh Pola Commit (WAJIB setiap task selesai)
 
@@ -78,16 +96,17 @@ Format: `feat(fase-N): deskripsi singkat` atau `fix(...)`, `docs(...)`, `chore(.
 7. Perbarui `AGENTS.md`, `README.md`, `docs/` setelah tiap fase.
 8. Aturan bisnis kritis: jangan ubah stok tanpa ledger; jangan terbitkan PO sebelum approval; jangan `count()+1` nomor dokumen; jangan edit/hapus ledger posted; penerimaan ≠ QC lolos ≠ invoice lunas.
 
-## Fase Berikutnya: PHASE 1 — ERD, Data Dictionary, Database Foundation
+## Fase Berikutnya: PHASE 2 — Auth, RBAC, Audit
 
 Rencana (lihat `docs/IMPLEMENTATION_ROADMAP.md`):
-1. Buat ERD akhir dan data dictionary (draft ada di `docs/database/`)
-2. Migration identitas/RBAC: users, departments, roles, permissions, pivot, audit_logs
-3. Migration master: item_categories, units, items, warehouses, suppliers, projects
-4. Migration pengadaan: purchase_requests, purchase_orders, document_sequences, approvals
-5. Factory dan seeder untuk setiap tabel
-6. Uji `php artisan migrate` dan `migrate:rollback`
-7. Test acceptance: FK, unique constraints, index tersedia
+1. Baca acceptance criteria PHASE 2 di PRD bagian 11
+2. Rencanakan routes, controllers, middleware, views
+3. Implementasi login/logout (Laravel Breeze atau manual)
+4. Implementasi RBAC middleware (cek role/permission)
+5. Implementasi audit logging (event listener atau trait)
+6. UI: halaman login, dashboard dengan menu sesuai role
+7. Test: login berhasil/gagal, akses route dengan/without auth, role checking
+8. Update dokumentasi
 
 ## Pertanyaan Terbuka (lihat `docs/OPEN_QUESTIONS.md`)
 
