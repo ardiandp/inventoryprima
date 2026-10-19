@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,4 +60,39 @@ Route::middleware('auth')->group(function () {
     // Audit log (super_admin)
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index')
         ->middleware('permission:audit.view');
+
+    // --- PHASE 3: Master Data (prefix /master) ---
+    Route::prefix('master')->name('master.')->group(function () {
+        // Kategori barang
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/categories', [ItemCategoryController::class, 'index'])->name('categories.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/categories/create', [ItemCategoryController::class, 'create'])->name('categories.create');
+            Route::post('/categories', [ItemCategoryController::class, 'store'])->name('categories.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/categories/{category}/edit', [ItemCategoryController::class, 'edit'])->name('categories.edit');
+            Route::put('/categories/{category}', [ItemCategoryController::class, 'update'])->name('categories.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/categories/{category}', [ItemCategoryController::class, 'destroy'])->name('categories.destroy');
+        });
+
+        // Satuan
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/units', [UnitController::class, 'index'])->name('units.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/units/create', [UnitController::class, 'create'])->name('units.create');
+            Route::post('/units', [UnitController::class, 'store'])->name('units.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/units/{unit}/edit', [UnitController::class, 'edit'])->name('units.edit');
+            Route::put('/units/{unit}', [UnitController::class, 'update'])->name('units.update');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/units/{unit}', [UnitController::class, 'destroy'])->name('units.destroy');
+        });
+    });
 });
