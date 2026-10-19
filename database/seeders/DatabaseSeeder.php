@@ -230,16 +230,20 @@ class DatabaseSeeder extends Seeder
 
     protected function seedSampleItems(): void
     {
-        $categoryIds = ItemCategory::pluck('id', 'code')->toArray();
+        // Ambil ID kategori berdasarkan nama (urutan seed)
+        $sparepartCat = ItemCategory::where('name', 'Sparepart')->first();
+        $consumableCat = ItemCategory::where('name', 'Consumable')->first();
+
         $pcsUnit = Unit::where('code', 'PCS')->first();
         $kgUnit = Unit::where('code', 'KG')->first();
 
-        if (!empty($categoryIds)) {
+        // Pastikan kategori dan unit tersedia
+        if ($sparepartCat && $pcsUnit) {
             Item::factory()->create([
                 'code' => 'BRG00001',
                 'name' => 'Bearing 6205',
-                'category_id' => $categoryIds['CAT005'] ?? null,
-                'default_unit_id' => $pcsUnit ? $pcsUnit->id : null,
+                'category_id' => $sparepartCat->id,
+                'default_unit_id' => $pcsUnit->id,
                 'min_stock' => 10,
                 'max_stock' => 100,
                 'requires_qc' => true,
@@ -248,18 +252,20 @@ class DatabaseSeeder extends Seeder
             Item::factory()->create([
                 'code' => 'BRG00002',
                 'name' => 'Bolt M10x50',
-                'category_id' => $categoryIds['CAT005'] ?? null,
-                'default_unit_id' => $pcsUnit ? $pcsUnit->id : null,
+                'category_id' => $sparepartCat->id,
+                'default_unit_id' => $pcsUnit->id,
                 'min_stock' => 50,
                 'max_stock' => 500,
                 'requires_qc' => false,
                 'is_active' => true,
             ]);
+        }
+        if ($consumableCat && $kgUnit) {
             Item::factory()->create([
                 'code' => 'BRG00003',
                 'name' => 'Lem Inggris',
-                'category_id' => $categoryIds['CAT004'] ?? null,
-                'default_unit_id' => $kgUnit ? $kgUnit->id : null,
+                'category_id' => $consumableCat->id,
+                'default_unit_id' => $kgUnit->id,
                 'min_stock' => 5,
                 'max_stock' => 50,
                 'requires_qc' => false,
