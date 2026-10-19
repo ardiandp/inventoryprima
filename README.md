@@ -7,52 +7,90 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# Aplikasi Inventori & Pengadaan Barang — PT Prima Mitrainti Sejati
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Aplikasi web internal untuk mengintegrasikan permintaan barang (RPO), verifikasi Purchasing, penawaran supplier, approval Direktur, Purchase Order (PO), pembayaran Finance, penerimaan Gudang, inspeksi QC, retur barang reject, pengendalian stok, dan pengeluaran material produksi/proyek.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Teknologi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Laravel 13 + PHP 8.3
+- MySQL 8.x / InnoDB
+- Blade + AdminLTE 3
 
-## Learning Laravel
+## Dokumentasi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| File | Keterangan |
+|------|------------|
+| `PRD_Inventory_Purchasing_PT_Prima_Inti_Laravel_AdminLTE3.md` | Product Requirements Document (sumber kebenaran) |
+| `AGENTS.md` | Pedoman agen AI / developer |
+| `docs/ARCHITECTURE.md` | Arsitektur sistem |
+| `docs/IMPLEMENTATION_ROADMAP.md` | Roadmap fase (PHASE 0–13) |
+| `docs/OPEN_QUESTIONS.md` | Pertanyaan terbuka |
+| `docs/database/ERD.md` | Diagram entitas-relasi |
+| `docs/database/DATA_DICTIONARY.md` | Kamus data |
+| `docs/database/MIGRATION_PLAN.md` | Rencana migrasi |
+| `docs/UAT_TEST_PLAN.md` | Rencana pengujian |
+| `docs/DEPLOYMENT_RUNBOOK.md` | Panduan deployment |
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Role
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+`super_admin`, `warehouse`, `production`, `purchasing`, `director`, `finance`, `qc`
 
-## Agentic Development
+## Aturan Wajib
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- Satu fase dikerjakan pada satu waktu (lihat PRD bagian 11).
+- Jangan ubah stok tanpa ledger.
+- Jangan terbitkan PO sebelum approval Direktur.
+- Jangan gunakan `count()+1` untuk nomor dokumen.
+- Jangan edit/hapus ledger yang sudah diposting.
+- Penerimaan barang tidak otomatis berarti QC lolos atau invoice lunas.
 
-```bash
-composer require laravel/boost --dev
+## Cara Menjalankan
 
-php artisan boost:install
-```
+1. `composer install`
+2. Salin `.env.example` ke `.env`, atur `DB_CONNECTION=mysql` dan kredensial MySQL
+3. `php artisan key:generate`
+4. `php artisan migrate`
+5. `php artisan serve` (atau via Laragon)
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Lisensi
 
-## Contributing
+MIT
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
