@@ -2,11 +2,11 @@
 
 Tujuan: developer lain dapat melanjutkan pengembangan dari catatan ini tanpa mulai dari nol.
 
-## Status Saat Ini (PHASE 2 Selesai)
+## Status Saat Ini (PHASE 3 Selesai)
 
-- **Branch:** `master` (commit terakhir: `5311beb` — test(fase-2): tests auth, RBAC, user management, audit log)
-- **Fase saat ini:** PHASE 2 — Auth, RBAC, Audit ✅ (selesai)
-- **Fase berikutnya:** PHASE 3 — Master Data
+- **Branch:** `master`
+- **Fase saat ini:** PHASE 3 — Master Data ✅ (selesai)
+- **Fase berikutnya:** PHASE 4 — RPO & Verifikasi
 
 ## Apa yang Sudah Dibangun (PHASE 0)
 
@@ -114,16 +114,27 @@ Format: `feat(fase-N): deskripsi singkat` atau `fix(...)`, `docs(...)`, `chore(.
 7. Perbarui `AGENTS.md`, `README.md`, `docs/` setelah tiap fase.
 8. Aturan bisnis kritis: jangan ubah stok tanpa ledger; jangan terbitkan PO sebelum approval; jangan `count()+1` nomor dokumen; jangan edit/hapus ledger posted; penerimaan ≠ QC lolos ≠ invoice lunas.
 
-## Fase Berikutnya: PHASE 3 — Master Data
+## Fase Berikutnya: PHASE 4 — RPO & Verifikasi
 
 Rencana (lihat `docs/IMPLEMENTATION_ROADMAP.md`):
-1. Baca acceptance criteria PHASE 3 di PRD bagian 11: *CRUD barang, kategori, satuan, supplier, gudang/lokasi, proyek opsional; validasi, search, filter, pagination. Kode unik; item terpakai tidak dihapus fisik; master nonaktif tidak dapat dipilih transaksi baru; CRUD tests lulus.*
-2. Rencanakan routes, controllers, Form Requests, views per entitas.
-3. Implementasi CRUD per entitas (master.view/create/edit/delete) dengan Gate/permission `master.*`.
-4. Validasi kode unik, soft-nonaktif alih-alih hard delete untuk item terpakai.
-5. Search + filter + pagination AdminLTE 3.
-6. Tests: CRUD positif/negatif, kode duplikat, cegah hapus item terpakai, akses tanpa permission ditolak.
-7. Update dokumentasi + commit per task.
+1. Baca acceptance criteria PHASE 4 di PRD bagian 11: *RPO multi-item dari Gudang/Produksi, nomor unik, submit, verifikasi, revisi, penolakan, komentar dan notifikasi. Validasi field wajib; pemohon melihat status; revisi memiliki alasan; nomor unik dalam request bersamaan; test alur lulus.*
+2. Rencanakan migrations `purchase_requests`, `purchase_request_items`, `document_sequences`.
+3. Implementasi nomor dokumen aman dari race condition (jangan `count()+1`).
+4. Tests: alur RPO positif/negatif, revisi beralasan, akses tanpa permission ditolak.
+5. Update dokumentasi + commit per task.
+
+## Apa yang Sudah Dibangun (PHASE 3 — Master Data)
+
+| Item | File / Lokasi | Keterangan |
+|------|---------------|------------|
+| Controllers (8) | `app/Http/Controllers/` | `ItemCategoryController`, `UnitController`, `ItemController`, `ItemUnitConversionController`, `SupplierController`, `WarehouseController`, `WarehouseLocationController`, `ProjectController` — CRUD + search/filter/pagination + validasi kode unik + proteksi hapus (soft delete; item/kategori/satuan/gudang terpakai diblokir) |
+| Bugfix relasi | `app/Models/Unit.php`, `app/Models/ItemCategory.php` | `Unit::items()` → FK `default_unit_id`; `ItemCategory::items()` → FK `category_id` (sebelumnya FK default salah sehingga proteksi hapus tidak jalan) |
+| Routes | `routes/web.php` | Prefix `/master`, proteksi `permission:master.view/create/edit/delete` per aksi |
+| Views | `resources/views/master/` | index/create/edit AdminLTE 3 untuk categories, units, items (+konversi), suppliers, warehouses, locations, projects |
+| Sidebar | `resources/views/layouts/app.blade.php` | Menu MASTER DATA (gate `master.view`) |
+| Tests | `tests/Feature/MasterDataTest.php` (base+akses+kategori+satuan, 10), `MasterDataItemTest.php` (barang+konversi, 7), `MasterDataPartnerTest.php` (supplier+gudang/lokasi+proyek, 4) | 31 tests master data |
+
+**Hasil test PHASE 3:** 93 tests, 320 assertions, **semua lulus** (`vendor/bin/phpunit --testsuite Feature --log-junit`, errors=0 failures=0).
 
 ## Pertanyaan Terbuka (lihat `docs/OPEN_QUESTIONS.md`)
 
