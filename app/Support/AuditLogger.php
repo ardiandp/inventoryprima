@@ -19,7 +19,7 @@ class AuditLogger
     public static function log(
         string $action,
         ?string $modelType = null,
-        ?int|string|null $modelId = null,
+        int|string|null $modelId = null,
         ?array $changes = null,
         ?array $context = null,
     ): AuditLog {

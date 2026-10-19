@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->string('action', 50);
-            $table->string('model_type', 100);
+            $table->string('model_type', 100)->nullable();
             $table->unsignedBigInteger('model_id')->nullable();
             $table->json('old_values')->nullable();
             $table->json('new_values')->nullable();

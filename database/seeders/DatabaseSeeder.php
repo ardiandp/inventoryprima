@@ -161,7 +161,7 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($mapping as $roleName, $permissionNames) {
+        foreach ($mapping as $roleName => $permissionNames) {
             $role = Role::where('name', $roleName)->first();
             if (! $role) {
                 continue;

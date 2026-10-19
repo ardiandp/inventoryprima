@@ -2,17 +2,31 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SmokeTest extends TestCase
 {
-    /** Beranda/AdminLTE layout dapat diakses dan mengembalikan 200. */
+    use RefreshDatabase;
+
+    /** Beranda/AdminLTE layout dapat diakses (setelah login) dan mengembalikan 200. */
     public function test_home_page_returns_successful_response(): void
     {
-        $response = $this->get('/home');
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/home');
 
         $response->assertStatus(200);
         $response->assertSee('Inventori');
+    }
+
+    /** Guest diarahkan ke halaman login. */
+    public function test_guest_redirected_to_login(): void
+    {
+        $response = $this->get('/home');
+
+        $response->assertStatus(302);
+        $response->assertRedirect('/login');
     }
 
     /** Halaman utama melakukan redirect ke beranda. */
