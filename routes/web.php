@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemUnitConversionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
@@ -67,6 +69,27 @@ Route::middleware('auth')->group(function () {
 
     // --- PHASE 3: Master Data (prefix /master) ---
     Route::prefix('master')->name('master.')->group(function () {
+        // Barang
+        Route::middleware('permission:master.view')->group(function () {
+            Route::get('/items', [ItemController::class, 'index'])->name('items.index');
+        });
+        Route::middleware('permission:master.create')->group(function () {
+            Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
+            Route::post('/items', [ItemController::class, 'store'])->name('items.store');
+        });
+        Route::middleware('permission:master.edit')->group(function () {
+            Route::get('/items/{item}/edit', [ItemController::class, 'edit'])->name('items.edit');
+            Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+            // Konversi satuan (dikelola dari form edit barang)
+            Route::post('/items/{item}/conversions', [ItemUnitConversionController::class, 'store'])
+                ->name('items.conversions.store');
+            Route::delete('/items/{item}/conversions/{conversion}', [ItemUnitConversionController::class, 'destroy'])
+                ->name('items.conversions.destroy');
+        });
+        Route::middleware('permission:master.delete')->group(function () {
+            Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+        });
+
         // Kategori barang
         Route::middleware('permission:master.view')->group(function () {
             Route::get('/categories', [ItemCategoryController::class, 'index'])->name('categories.index');

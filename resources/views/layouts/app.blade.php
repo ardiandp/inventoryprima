@@ -73,6 +73,53 @@
                     </li>
 
                     @auth
+                    {{-- Master Data (master.view) --}}
+                    @if(auth()->user()->hasPermission('master.view'))
+                    <li class="nav-header">MASTER DATA</li>
+
+                    <li class="nav-item {{ Request::routeIs('master.items.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.items.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-boxes"></i>
+                            <p>Barang</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('master.categories.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.categories.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-tags"></i>
+                            <p>Kategori Barang</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('master.units.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.units.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-balance-scale"></i>
+                            <p>Satuan</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('master.suppliers.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.suppliers.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-truck"></i>
+                            <p>Supplier</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('master.warehouses.*') || Request::routeIs('master.locations.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.warehouses.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-warehouse"></i>
+                            <p>Gudang &amp; Lokasi</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('master.projects.*') ? 'active' : '' }}">
+                        <a href="{{ route('master.projects.index') }}" class="nav-link">
+                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <p>Proyek</p>
+                        </a>
+                    </li>
+                    @endif
+
                     {{-- Pengaturan (super_admin) --}}
                     @if(auth()->user()->hasPermission('user.manage') || auth()->user()->hasPermission('role.manage') || auth()->user()->hasPermission('audit.view'))
                     <li class="nav-header">PENGATURAN</li>
