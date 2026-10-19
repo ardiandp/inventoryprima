@@ -134,7 +134,7 @@ Rencana (lihat `docs/IMPLEMENTATION_ROADMAP.md`):
 | Sidebar | `resources/views/layouts/app.blade.php` | Menu MASTER DATA (gate `master.view`) |
 | Tests | `tests/Feature/MasterDataTest.php` (base+akses+kategori+satuan, 10), `MasterDataItemTest.php` (barang+konversi, 7), `MasterDataPartnerTest.php` (supplier+gudang/lokasi+proyek, 4) | 31 tests master data |
 
-**Hasil test PHASE 3:** 93 tests, 320 assertions, **semua lulus** (`vendor/bin/phpunit --testsuite Feature --log-junit`, errors=0 failures=0).
+**Hasil test PHASE 3:** 85 tests, 291 assertions, **semua lulus** (`vendor/bin/phpunit --testsuite Feature --log-junit`, errors=0 failures=0).
 
 ## Pertanyaan Terbuka (lihat `docs/OPEN_QUESTIONS.md`)
 
