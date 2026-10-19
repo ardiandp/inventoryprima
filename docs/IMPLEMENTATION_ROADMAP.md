@@ -25,7 +25,8 @@ Berdasarkan PRD bagian 11 (Fase Pengembangan dan Acceptance Criteria).
 
 - **PHASE 0 — Discovery & Setup:** ✅ SELESAI
 - **PHASE 1 — ERD, Data Dictionary, Database Foundation:** ✅ SELESAI
-- **Fase selanjutnya:** PHASE 2 — Auth, RBAC, Audit
+- **PHASE 2 — Auth, RBAC, Audit:** ✅ SELESAI (63 tests / 185 assertions lulus)
+- **Fase selanjutnya:** PHASE 3 — Master Data
 
 ## Aturan
 

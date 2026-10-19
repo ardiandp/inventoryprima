@@ -2,11 +2,11 @@
 
 Tujuan: developer lain dapat melanjutkan pengembangan dari catatan ini tanpa mulai dari nol.
 
-## Status Saat Ini (PHASE 1 Selesai)
+## Status Saat Ini (PHASE 2 Selesai)
 
-- **Branch:** `master` (commit terakhir: `afc1007` — fix(fase-1): perbaiki seeder items dan lengkapi tests DatabaseFoundation)
-- **Fase saat ini:** PHASE 1 — ERD, Data Dictionary, Database Foundation ✅ (selesai)
-- **Fase berikutnya:** PHASE 2 — Auth, RBAC, Audit
+- **Branch:** `master` (commit terakhir: `5311beb` — test(fase-2): tests auth, RBAC, user management, audit log)
+- **Fase saat ini:** PHASE 2 — Auth, RBAC, Audit ✅ (selesai)
+- **Fase berikutnya:** PHASE 3 — Master Data
 
 ## Apa yang Sudah Dibangun (PHASE 0)
 
@@ -41,6 +41,24 @@ Tujuan: developer lain dapat melanjutkan pengembangan dari catatan ini tanpa mul
 | **Seeder** | `database/seeders/DatabaseSeeder.php` | 7 dept, 7 role, 28 permission, 6 unit, 7 kategori, 4 gudang, 2 supplier, 2 proyek, 1 admin, 3 item |
 | **Tests** | `tests/Feature/DatabaseFoundationTest.php` | 12 tests, 73 assertions, semua passing |
 
+## Apa yang Sudah Dibangun (PHASE 2 — Auth, RBAC, Audit)
+
+| Item | File / Lokasi | Keterangan |
+|------|---------------|------------|
+| Login/Logout | `app/Http/Controllers/Auth/LoginController.php` | `create` (form), `store` (validasi + session regenerate + audit), `destroy` (logout + audit) |
+| AuditLogger | `app/Support/AuditLogger.php` | Helper statis `AuditLogger::log(action, modelType, modelId, changes, context)` — simpan aktor, IP, user agent |
+| RBAC middleware | `app/Http/Middleware/CheckPermission.php` | Alias `permission` di `bootstrap/app.php`; cek `User::hasPermission()`; 403 jika tidak berwenang |
+| User helpers | `app/Models/User.php` | `hasPermission()`, `roleName()` (role aktif → permission) |
+| Seeder role→permission | `database/seeders/DatabaseSeeder.php` | `seedRolePermissions()`: super_admin=all(28), warehouse/production/purchasing/director/finance/qc sesuai PRD bag. 3; **finance TIDAK punya `inventory.adjust`** |
+| Controllers | `app/Http/Controllers/` | `UserController` (CRUD + cegah hapus diri/last admin), `RoleController` (+`permissions()`), `AuditLogController` (filter) |
+| Views (9 file) | `resources/views/` | `auth/login`, `users/{index,create,edit}`, `roles/{index,create,edit}`, `permissions/index`, `audit_logs/index` |
+| Layout update | `resources/views/layouts/app.blade.php` | Navbar dropdown user + tombol keluar; sidebar Pengaturan difilter permission |
+| Routes | `routes/web.php` | `/login` (guest), `/logout`, `/home` (auth); `users.*` (`permission:user.manage`), `roles.*` + `permissions` (`permission:role.manage`), `audit-logs` (`permission:audit.view`) |
+| Migration fix | `2026_10_19_090005_create_audit_logs_table.php` | `model_type` → nullable (login/logout tanpa model) |
+| Tests (5 file baru) | `tests/Feature/` | AuthTest (11), RbacTest (14), UserManagementTest (11), AuditLogTest (7); SmokeTest/ExampleTest disesuaikan auth |
+
+**Hasil test PHASE 2:** 63 tests, 185 assertions, **semua lulus** (termasuk 12 DatabaseFoundation lama).
+
 ## Cara Menjalankan Aplikasi (Lokal)
 
 ```powershell
@@ -72,7 +90,7 @@ vendor\bin\phpunit
 php artisan test
 ```
 
-**Hasil PHASE 1:** 17 tests (5 SmokeTest + 12 DatabaseFoundationTest), semua lulus, 82 assertions.
+**Hasil PHASE 2:** 63 tests, 185 assertions, semua lulus (`php artisan test --compact`).
 
 ## Contoh Pola Commit (WAJIB setiap task selesai)
 
@@ -96,17 +114,16 @@ Format: `feat(fase-N): deskripsi singkat` atau `fix(...)`, `docs(...)`, `chore(.
 7. Perbarui `AGENTS.md`, `README.md`, `docs/` setelah tiap fase.
 8. Aturan bisnis kritis: jangan ubah stok tanpa ledger; jangan terbitkan PO sebelum approval; jangan `count()+1` nomor dokumen; jangan edit/hapus ledger posted; penerimaan ≠ QC lolos ≠ invoice lunas.
 
-## Fase Berikutnya: PHASE 2 — Auth, RBAC, Audit
+## Fase Berikutnya: PHASE 3 — Master Data
 
 Rencana (lihat `docs/IMPLEMENTATION_ROADMAP.md`):
-1. Baca acceptance criteria PHASE 2 di PRD bagian 11
-2. Rencanakan routes, controllers, middleware, views
-3. Implementasi login/logout (Laravel Breeze atau manual)
-4. Implementasi RBAC middleware (cek role/permission)
-5. Implementasi audit logging (event listener atau trait)
-6. UI: halaman login, dashboard dengan menu sesuai role
-7. Test: login berhasil/gagal, akses route dengan/without auth, role checking
-8. Update dokumentasi
+1. Baca acceptance criteria PHASE 3 di PRD bagian 11: *CRUD barang, kategori, satuan, supplier, gudang/lokasi, proyek opsional; validasi, search, filter, pagination. Kode unik; item terpakai tidak dihapus fisik; master nonaktif tidak dapat dipilih transaksi baru; CRUD tests lulus.*
+2. Rencanakan routes, controllers, Form Requests, views per entitas.
+3. Implementasi CRUD per entitas (master.view/create/edit/delete) dengan Gate/permission `master.*`.
+4. Validasi kode unik, soft-nonaktif alih-alih hard delete untuk item terpakai.
+5. Search + filter + pagination AdminLTE 3.
+6. Tests: CRUD positif/negatif, kode duplikat, cegah hapus item terpakai, akses tanpa permission ditolak.
+7. Update dokumentasi + commit per task.
 
 ## Pertanyaan Terbuka (lihat `docs/OPEN_QUESTIONS.md`)
 
