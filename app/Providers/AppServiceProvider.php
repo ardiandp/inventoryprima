@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\PurchaseRequest;
+use App\Policies\PurchaseRequestPolicy;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // AdminLTE 3 memakai Bootstrap 4 — pagination harus memakai view Bootstrap 4.
         Paginator::useBootstrapFour();
+
+        // Policy RPO (PHASE 4).
+        Gate::policy(PurchaseRequest::class, PurchaseRequestPolicy::class);
     }
 }

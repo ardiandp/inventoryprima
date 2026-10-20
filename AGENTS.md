@@ -116,4 +116,9 @@ feat(fase-0): setup environment MySQL dan dokumentasi awal
 
 ## 11. Fase Pengembangan (PRD bagian 11)
 
-PHASE 0 → PHASE 1 → PHASE 2 → … → PHASE 13. Lihat PRD untuk acceptance criteria masing-masing. Fase saat ini: PHASE 3 (selesai), berikutnya PHASE 4 — RPO & Verifikasi.
+PHASE 0 → PHASE 1 → PHASE 2 → … → PHASE 13. Lihat PRD untuk acceptance criteria masing-masing. Fase saat ini: PHASE 4 (selesai), berikutnya PHASE 5 — Sourcing & Approval.
+
+### PHASE 4 — RPO & Verifikasi (selesai)
+- Model, factory, migration, seeder, form request, policy, route, view, dan test untuk alur RPO (draft → submitted → under_review → approved/rejected/cancelled) dibuat dan lulus **85 tests / 291 assertions**.
+- Terdapat `PurchaseRequest` + `PurchaseRequestItem`; nomor unik dijamin; validasi field wajib; revisi punya alasan; notifikasi & permission `rpo.*` tersedia.
+

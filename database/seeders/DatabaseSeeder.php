@@ -12,6 +12,8 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -35,6 +37,7 @@ class DatabaseSeeder extends Seeder
         $this->seedProjects();
         $this->seedAdminUser();
         $this->seedSampleItems();
+        $this->seedPurchaseRequests();
     }
     protected function seedDepartments(): void
     {
@@ -334,6 +337,92 @@ class DatabaseSeeder extends Seeder
             ]);
         }
     }
+    protected function seedPurchaseRequests(): void
+    {
+        $warehouseRole = Role::where('name', 'warehouse')->first();
+        $productionRole = Role::where('name', 'production')->first();
+
+        $warehouseUser = User::factory()->create([
+            'name' => 'Warehouse Staff',
+            'email' => 'warehouse@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($warehouseRole) {
+            $warehouseUser->roles()->attach($warehouseRole->id);
+        }
+
+        $productionUser = User::factory()->create([
+            'name' => 'Production Staff',
+            'email' => 'production@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($productionRole) {
+            $productionUser->roles()->attach($productionRole->id);
+        }
+
+        $itemIds = Item::pluck('id')->toArray();
+        $unitIds = Unit::pluck('id')->toArray();
+
+        $warehouseRequest = PurchaseRequest::factory()->create([
+            'display_number' => 'PR-' . strtoupper(uniqid()),
+            'requested_by' => $warehouseUser->id,
+            'request_type' => 'regular',
+            'reason' => 'Permintaan stok barang perlengkapan gudang',
+            'priority' => 'normal',
+            'projected_date' => now()->addDays(7),
+            'department_id' => Department::where('name', 'Gudang')->first()?->id,
+            'status' => 'submitted',
+        ]);
+
+        if (! empty($itemIds) && ! empty($unitIds)) {
+            PurchaseRequestItem::factory()->create([
+                'purchase_request_id' => $warehouseRequest->id,
+                'item_id' => $itemIds[0],
+                'unit_id' => $unitIds[0],
+                'quantity' => 200,
+                'unit_price' => 1250,
+                'specification' => 'Standar dkk.',
+            ]);
+            PurchaseRequestItem::factory()->create([
+                'purchase_request_id' => $warehouseRequest->id,
+                'item_id' => $itemIds[1],
+                'unit_id' => $unitIds[0],
+                'quantity' => 50,
+                'unit_price' => 900,
+                'specification' => 'Tebal ringan',
+            ]);
+        }
+
+        $project = Project::where('name', 'Proyek Pabrik Baru')->first();
+        $productionRequest = PurchaseRequest::factory()->create([
+            'display_number' => 'PR-' . strtoupper(uniqid()),
+            'requested_by' => $productionUser->id,
+            'request_type' => 'project',
+            'reason' => 'Material proyek pabrik baru',
+            'priority' => 'high',
+            'projected_date' => now()->addDays(21),
+            'department_id' => Department::where('name', 'Produksi')->first()?->id,
+            'project_id' => $project ? $project->id : null,
+            'status' => 'under_review',
+        ]);
+
+        if (! empty($itemIds) && ! empty($unitIds)) {
+            PurchaseRequestItem::factory()->create([
+                'purchase_request_id' => $productionRequest->id,
+                'item_id' => $itemIds[0],
+                'unit_id' => $unitIds[0],
+                'quantity' => 300,
+                'unit_price' => 1250,
+                'specification' => 'Untuk penggunaan proyek',
+            ]);
+            PurchaseRequestItem::factory()->create([
+                'purchase_request_id' => $productionRequest->id,
+                'item_id' => $itemIds[1],
+                'unit_id' => $unitIds[0],
+                'quantity' => 100,
+                'unit_price' => 900,
+                'specification' => 'Tambahan proyek',
+            ]);
+        }
+    }
 }
-
-

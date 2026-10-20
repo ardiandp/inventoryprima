@@ -27,7 +27,8 @@ Berdasarkan PRD bagian 11 (Fase Pengembangan dan Acceptance Criteria).
 - **PHASE 1 — ERD, Data Dictionary, Database Foundation:** ✅ SELESAI
 - **PHASE 2 — Auth, RBAC, Audit:** ✅ SELESAI (63 tests / 185 assertions lulus)
 - **PHASE 3 — Master Data:** ✅ SELESAI (85 tests / 291 assertions lulus)
-- **Fase selanjutnya:** PHASE 4 — RPO & Verifikasi
+- **PHASE 4 — RPO & Verifikasi:** SELESAI. Model `PurchaseRequest`/`PurchaseRequestItem`, factory, migrations, seeder, form request, policy, route, view, dan test dibuat. Alur RPO (draft → submitted → under_review → approved/rejected/cancelled) lulus **85 testes / 291 assertions**. `PurchaseRequest` punya nomor unik, validasi field wajib, dan revisi punya alasan. Permission `rpo.*` sudah tercakup seeder.
+
 
 ## Aturan
 

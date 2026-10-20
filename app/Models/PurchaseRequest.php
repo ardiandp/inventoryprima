@@ -1,0 +1,284 @@
+<?php
+
+namespace App\Models;
+
+use App\Support\DocumentNumberService;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class PurchaseRequest extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    // --- Status RPO (PRD bagian 6) ---
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_UNDER_REVIEW = 'under_review';
+    public const STATUS_REVISION_REQUESTED = 'revision_requested';
+    public const STATUS_SOURCING = 'sourcing';
+    public const STATUS_PENDING_APPROVAL = 'pending_approval';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_PARTIALLY_ORDERED = 'partially_ordered';
+    public const STATUS_FULFILLED = 'fulfilled';
+    public const STATUS_CLOSED = 'closed';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    /**
+     * Semua status yang valid.
+     *
+     * @return array<int, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            self::STATUS_DRAFT,
+            self::STATUS_SUBMITTED,
+            self::STATUS_UNDER_REVIEW,
+            self::STATUS_REVISION_REQUESTED,
+            self::STATUS_SOURCING,
+            self::STATUS_PENDING_APPROVAL,
+            self::STATUS_APPROVED,
+            self::STATUS_PARTIALLY_ORDERED,
+            self::STATUS_FULFILLED,
+            self::STATUS_CLOSED,
+            self::STATUS_REJECTED,
+            self::STATUS_CANCELLED,
+        ];
+    }
+
+    /**
+     * Label status untuk ditampilkan di UI.
+     */
+    public static function statusLabel(string $status): string
+    {
+        return match ($status) {
+            self::STATUS_DRAFT => 'Draft',
+            self::STATUS_SUBMITTED => 'Diajukan',
+            self::STATUS_UNDER_REVIEW => 'Sedang Direview',
+            self::STATUS_REVISION_REQUESTED => 'Perlu Revisi',
+            self::STATUS_SOURCING => 'Sourcing',
+            self::STATUS_PENDING_APPROVAL => 'Menunggu Approval',
+            self::STATUS_APPROVED => 'Disetujui',
+            self::STATUS_PARTIALLY_ORDERED => 'Sebagian Dipesan',
+            self::STATUS_FULFILLED => 'Terpenuhi',
+            self::STATUS_CLOSED => 'Ditutup',
+            self::STATUS_REJECTED => 'Ditolak',
+            self::STATUS_CANCELLED => 'Dibatalkan',
+            default => ucfirst(str_replace('_', ' ', $status)),
+        };
+    }
+
+    /**
+     * Prioritas yang valid.
+     *
+     * @return array<int, string>
+     */
+    public static function priorities(): array
+    {
+        return ['low', 'normal', 'high', 'urgent'];
+    }
+
+    /**
+     * Tipe permintaan yang valid.
+     *
+     * @return array<int, string>
+     */
+    public static function requestTypes(): array
+    {
+        return ['regular', 'project'];
+    }
+
+    #[Fillable([
+        'display_number',
+        'requested_by',
+        'request_type',
+        'reason',
+        'priority',
+        'projected_date',
+        'department_id',
+        'project_id',
+        'status',
+        'reviewed_by',
+        'rejection_reason',
+        'comment',
+        'revision_count',
+        'revision_reason',
+        'approved_by',
+        'po_number',
+        'attachment_id',
+    ])]
+    protected $fillable = [
+        'display_number',
+        'requested_by',
+        'request_type',
+        'reason',
+        'priority',
+        'projected_date',
+        'department_id',
+        'project_id',
+        'status',
+        'reviewed_by',
+        'rejection_reason',
+        'comment',
+        'revision_count',
+        'revision_reason',
+        'approved_by',
+        'po_number',
+        'attachment_id',
+    ];
+
+    protected $casts = [
+        'projected_date' => 'date',
+        'status' => 'string',
+        'revision_count' => 'integer',
+        'is_active' => 'boolean',
+    ];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(PurchaseRequestItem::class);
+    }
+
+    public function statusHistories(): HasMany
+    {
+        return $this->hasMany(PurchaseRequestStatusHistory::class)->latest('created_at');
+    }
+
+    public function requestedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by');
+    }
+
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function attachment(): BelongsTo
+    {
+        return $this->belongsTo(Attachment::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeRequestType($query, string $type)
+    {
+        return $query->where('request_type', $type);
+    }
+
+    public function scopeStatus($query, string $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    public function scopeSearch($query, string $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('display_number', 'like', '%' . $term . '%')
+                ->orWhere('reason', 'like', '%' . $term . '%')
+                ->orWhereHas('requestedBy', function ($query) use ($term) {
+                    $query->where('name', 'like', '%' . $term . '%');
+                });
+        });
+    }
+
+    /**
+     * Status saat ini.
+     */
+    public function isDraft(): bool
+    {
+        return $this->status === self::STATUS_DRAFT;
+    }
+
+    public function isSubmitted(): bool
+    {
+        return $this->status === self::STATUS_SUBMITTED;
+    }
+
+    public function isUnderReview(): bool
+    {
+        return $this->status === self::STATUS_UNDER_REVIEW;
+    }
+
+    public function isRevisionRequested(): bool
+    {
+        return $this->status === self::STATUS_REVISION_REQUESTED;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
+    }
+
+    /**
+     * Apakah RPO masih bisa diedit oleh pemohon.
+     */
+    public function isEditable(): bool
+    {
+        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_REVISION_REQUESTED], true);
+    }
+
+    /**
+     * Label status untuk tampilan.
+     */
+    public function statusLabel(): string
+    {
+        return self::statusLabel($this->status);
+    }
+
+    /**
+     * Total estimasi nilai RPO.
+     */
+    public function totalEstimatedValue(): float
+    {
+        return (float) $this->items->sum(
+            fn (PurchaseRequestItem $item) => (float) $item->quantity * (float) ($item->unit_price ?? 0)
+        );
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($model) {
+            if (empty($model->display_number)) {
+                $model->display_number = app(DocumentNumberService::class)->next(
+                    'purchase_request',
+                    'PR',
+                    now()->format('Ym')
+                );
+            }
+        });
+    }
+}

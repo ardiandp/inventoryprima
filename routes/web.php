@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemUnitConversionController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
@@ -185,5 +186,33 @@ Route::middleware('auth')->group(function () {
         Route::middleware('permission:master.delete')->group(function () {
             Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
         });
+    });
+
+    // --- PHASE 4: RPO / Purchase Request (prefix /rpo) ---
+    Route::prefix('rpo')->name('rpo.')->group(function () {
+        Route::middleware('permission:rpo.view')->group(function () {
+            Route::get('/', [PurchaseRequestController::class, 'index'])->name('index');
+        });
+
+        Route::middleware('permission:rpo.create')->group(function () {
+            Route::get('/create', [PurchaseRequestController::class, 'create'])->name('create');
+            Route::post('/', [PurchaseRequestController::class, 'store'])->name('store');
+        });
+
+        Route::middleware('permission:rpo.edit')->group(function () {
+            Route::get('/{purchaseRequest}/edit', [PurchaseRequestController::class, 'edit'])->name('edit');
+            Route::put('/{purchaseRequest}', [PurchaseRequestController::class, 'update'])->name('update');
+        });
+
+        // Detail RPO (butuh rpo.view; otorisasi level objek tetap di policy).
+        Route::middleware('permission:rpo.view')->group(function () {
+            Route::get('/{purchaseRequest}', [PurchaseRequestController::class, 'show'])->name('show');
+        });
+
+        // Aksi alur kerja — otorisasi detail di policy (termasuk larangan approve diri sendiri).
+        Route::post('/{purchaseRequest}/submit', [PurchaseRequestController::class, 'submit'])->name('submit');
+        Route::post('/{purchaseRequest}/start-review', [PurchaseRequestController::class, 'startReview'])->name('start-review');
+        Route::post('/{purchaseRequest}/review', [PurchaseRequestController::class, 'review'])->name('review');
+        Route::post('/{purchaseRequest}/cancel', [PurchaseRequestController::class, 'cancel'])->name('cancel');
     });
 });
