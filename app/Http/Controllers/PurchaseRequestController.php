@@ -2,6 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PurchaseRequest;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+<?php
+
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CancelPurchaseRequestRequest;
 use App\Http\Requests\ReviewPurchaseRequestRequest;
 use App\Http\Requests\StorePurchaseRequestRequest;
@@ -359,5 +366,103 @@ class PurchaseRequestController extends Controller
             'requestTypes' => PurchaseRequest::requestTypes(),
             'priorities' => PurchaseRequest::priorities(),
         ];
+    }
+}
+
+/**
+     * Start sourcing (publish RPO to sourcing phase).
+     */
+    public function sourcing(PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('rpo.sourcing'), 403);
+
+        $purchaseRequest->status = PurchaseRequest::STATUS_SOURCING;
+        $purchaseRequest->save();
+
+        return redirect()->route('rpo.show', $purchaseRequest)
+            ->with('success', 'RPO berhasil dipublikasikan ke tahap sourcing.');
+    }
+
+    /**
+     * Store sourcing data (quotations).
+     */
+    public function sourcingStore(StoreSourcingRequest $request, PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('rpo.sourcing'), 403);
+
+        $validated = $request->validated();
+
+        foreach ($validated['quotations'] as $quotation) {
+            $purchaseRequest->quotations()->create([
+                'supplier_id' => $quotation['supplier_id'],
+                'price' => $quotation['price'],
+                'lead_time' => $quotation['lead_time'],
+                'status' => 'pending_review',
+            ]);
+        }
+
+        return redirect()->route('rpo.quotations', $purchaseRequest)
+            ->with('success', 'Kuotaion berhasil disimpan.');
+    }
+
+    /**
+     * Display quotations form.
+     */
+    public function quotations(PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('rpo.quotations'), 403);
+
+        return view('rpo.quotations', compact('purchaseRequest'));
+    }
+
+    /**
+     * Store quotations.
+     */
+    public function quotationsStore(StoreQuotationRequest $request, PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('rpo.quotations'), 403);
+
+        $validated = $request->validated();
+
+        foreach ($validated['quotations'] as $quotation) {
+            $purchaseRequest->quotations()->create([
+                'supplier_id' => $quotation['supplier_id'],
+                'price' => $quotation['price'],
+                'lead_time' => $quotation['lead_time'],
+                'status' => 'pending_review',
+            ]);
+        }
+
+        return redirect()->route('rpo.quotations', $purchaseRequest)
+            ->with('success', 'Kuotaion berhasil disimpan.');
+    }
+
+    /**
+     * Approve sourcing (set status ke pending_approval).
+     */
+    public function approveSourcing(Request $request, PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('director'), 403);
+
+        $purchaseRequest->status = PurchaseRequest::STATUS_PENDING_APPROVAL;
+        $purchaseRequest->save();
+
+        return redirect()->route('rpo.show', $purchaseRequest)
+            ->with('success', 'Sourcing berhasil diapprove.');
+    }
+
+    /**
+     * Reject sourcing (kembali ke revision requested).
+     */
+    public function rejectSourcing(Request $request, PurchaseRequest $purchaseRequest)
+    {
+        abort_if(!auth()->user()->can('director'), 403);
+
+        $purchaseRequest->status = PurchaseRequest::STATUS_REVISION_REQUESTED;
+        $purchaseRequest->sourcing_notes = $request->input('reason') ?? 'Sourcing ditolak';
+        $purchaseRequest->save();
+
+        return redirect()->route('rpo.show', $purchaseRequest)
+            ->with('success', 'Sourcing ditolak, kembali ke revision requested.');
     }
 }

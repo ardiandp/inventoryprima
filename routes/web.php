@@ -224,5 +224,31 @@ Route::middleware('auth')->group(function () {
         Route::post('/{purchaseRequest}/approve-sourcing', [PurchaseRequestController::class, 'approveSourcing'])->name('approve-sourcing');
         Route::post('/{purchaseRequest}/reject-sourcing', [PurchaseRequestController::class, 'rejectSourcing'])->name('reject-sourcing');
     });
-    
+
+    // --- PHASE 7: Finance Payment (prefix /finance) ---
+    Route::middleware('permission:finance.view')->group(function () {
+        Route::get('/', [FinanceController::class, 'index'])->name('finance.index');
+        Route::get('/create', [FinanceController::class, 'create'])->name('finance.create');
+        Route::post('/', [FinanceController::class, 'store'])->name('finance.store');
+        Route::get('/{invoice}/show', [FinanceController::class, 'show'])->name('finance.show');
+        Route::get('/{invoice}/edit', [FinanceController::class, 'edit'])->name('finance.edit');
+        Route::put('/{invoice}', [FinanceController::class, 'update'])->name('finance.update');
+        Route::post('/{invoice}/pay', [FinanceController::class, 'processPayment'])->name('finance.process-payment');
+    });
+
+    // --- PHASE 8: QC Inspection (prefix /qc) ---
+    Route::middleware('permission:qc.view')->group(function () {
+        Route::prefix('qc')->name('qc.')->group(function () {
+            Route::get('/', [QcController::class, 'index'])->name('index');
+            Route::get('/create', [QcController::class, 'create'])->name('create');
+            Route::post('/', [QcController::class, 'store'])->name('store');
+            Route::get('/{inspection}', [QcController::class, 'show'])->name('show');
+            Route::get('/{inspection}/edit', [QcController::class, 'edit'])->name('edit');
+            Route::put('/{inspection}', [QcController::class, 'update'])->name('update');
+            Route::post('/{inspection}/accept', [QcController::class, 'accept'])->name('accept');
+            Route::post('/{inspection}/reject', [QcController::class, 'reject'])->name('reject');
+            Route::post('/{inspection}/post', [QcController::class, 'post'])->name('post');
+        });
+    });
+
 });

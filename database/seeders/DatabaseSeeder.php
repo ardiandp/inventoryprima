@@ -1,5 +1,25 @@
 <?php
 
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // $this->call([
+        //     PurchaseRequestSeeder::class,
+        //     PurchaseOrderSeeder::class,
+        //     // Add other seeders here
+        // ]);
+
+        // For now, run just PurchaseRequest seeder
+        $this->call(PurchaseRequestSeeder::class);
+    }
+}
+
 namespace Database\Seeders;
 
 use App\Models\Department;
@@ -358,6 +378,42 @@ class DatabaseSeeder extends Seeder
         ]);
         if ($productionRole) {
             $productionUser->roles()->attach($productionRole->id);
+        }
+
+        $purchasingUser = User::factory()->create([
+            'name' => 'Purchasing Staff',
+            'email' => 'purchasing@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($purchasingRole) {
+            $purchasingUser->roles()->attach($purchasingRole->id);
+        }
+
+        $directorUser = User::factory()->create([
+            'name' => 'Director',
+            'email' => 'director@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($directorRole) {
+            $directorUser->roles()->attach($directorRole->id);
+        }
+
+        $financeUser = User::factory()->create([
+            'name' => 'Finance Staff',
+            'email' => 'finance@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($financeRole) {
+            $financeUser->roles()->attach($financeRole->id);
+        }
+
+        $qcUser = User::factory()->create([
+            'name' => 'QC Staff',
+            'email' => 'qc@example.com',
+            'password' => bcrypt('password'),
+        ]);
+        if ($qcRole) {
+            $qcUser->roles()->attach($qcRole->id);
         }
 
         $itemIds = Item::pluck('id')->toArray();

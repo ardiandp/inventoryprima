@@ -1,3 +1,9 @@
+/**
+ * Melihat daftar/detail RPO.
+ * Semua user internal dengan izin rpo.view boleh melihat RPO
+ * (pemohon, purchasing, direksi, dsb.).
+ */
+<?php
 <?php
 
 namespace App\Policies;
@@ -159,4 +165,31 @@ class PurchaseRequestPolicy
             PurchaseRequest::STATUS_REVISION_REQUESTED,
         ], true);
     }
+}
+
+/**
+ * Mulai sourcing (menerbitkan RPO ke tahap sourcing).
+ */
+public function sourcing(User $user, PurchaseRequest $purchaseRequest): bool
+{
+    // Hanya purchasing dan director yang boleh mulai sourcing.
+    return $user->hasPermission('purchasing') || $user->hasPermission('director');
+}
+
+/**
+ * Approve sourcing (set status ke pending_approval).
+ */
+public function approveSourcing(User $user, PurchaseRequest $purchaseRequest): bool
+{
+    // Hanya director yang boleh approve sourcing.
+    return $user->hasPermission('director');
+}
+
+/**
+ * Reject sourcing (kembali ke revision requested).
+ */
+public function rejectSourcing(User $user, PurchaseRequest $purchaseRequest): bool
+{
+    // Hanya director yang boleh reject sourcing.
+    return $user->hasPermission('director');
 }
