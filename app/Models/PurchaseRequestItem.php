@@ -43,12 +43,7 @@ class PurchaseRequestItem extends Model
         };
     }
 
-    public function statusLabel(): string
-    {
-        return self::statusLabel($this->status);
-    }
-
-    #[Fillable([
+    
         'purchase_request_id',
         'item_id',
         'unit_id',

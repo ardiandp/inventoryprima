@@ -215,4 +215,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/{purchaseRequest}/review', [PurchaseRequestController::class, 'review'])->name('review');
         Route::post('/{purchaseRequest}/cancel', [PurchaseRequestController::class, 'cancel'])->name('cancel');
     });
+    
+    Route::middleware('permission:rpo.sourcing')->group(function () {
+        Route::get('/{purchaseRequest}/sourcing', [PurchaseRequestController::class, 'sourcing'])->name('sourcing');
+        Route::post('/{purchaseRequest}/sourcing', [PurchaseRequestController::class, 'sourcingStore'])->name('sourcing.store');
+        Route::get('/{purchaseRequest}/quotations', [PurchaseRequestController::class, 'quotations'])->name('quotations');
+        Route::post('/{purchaseRequest}/quotations', [PurchaseRequestController::class, 'quotationsStore'])->name('quotations.store');
+        Route::post('/{purchaseRequest}/approve-sourcing', [PurchaseRequestController::class, 'approveSourcing'])->name('approve-sourcing');
+        Route::post('/{purchaseRequest}/reject-sourcing', [PurchaseRequestController::class, 'rejectSourcing'])->name('reject-sourcing');
+    });
+    
 });

@@ -298,7 +298,7 @@ class PurchaseRequestController extends Controller
     }
 
     /**
-     * Sinkronkan item RPO (create/update/delete) berdasarkan input form.
+     *  (create/update/delete) berdasarkan input form.
      *
      * @param  array<int, array<string, mixed>>  $items
      */

@@ -254,10 +254,8 @@ class PurchaseRequest extends Model
     /**
      * Label status untuk tampilan.
      */
-    public function statusLabel(): string
-    {
-        return self::statusLabel($this->status);
-    }
+    
+    
 
     /**
      * Total estimasi nilai RPO.
